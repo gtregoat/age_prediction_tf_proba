@@ -2,9 +2,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - cd iac
       - terraform init
       - terraform validate
 
   build:
     commands:
-    - terraform apply --auto-approve
+      - cd iac
+      - terraform apply --auto-approve
