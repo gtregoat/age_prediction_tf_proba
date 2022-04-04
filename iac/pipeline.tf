@@ -71,7 +71,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
             configuration = {
                 FullRepositoryId = var.github_repo
                 BranchName   = var.branch_name
-                ConnectionArn = var.codestar_connector_credentials
+                ConnectionArn = local.codestar_connector_credentials.age_pred_tf_proba_codestar_arn
                 OutputArtifactFormat = "CODE_ZIP"
             }
         }

@@ -1,4 +1,3 @@
-codestar_connector_credentials = "arn:aws:codestar-connections:eu-west-1:503454985188:connection/d647f2a3-b564-40d1-b4f0-33f9493f2427"
 codestar_version = "1"
 code_pipeline_version = "1"
 github_repo = "gtregoat/age_prediction_tf_proba"
