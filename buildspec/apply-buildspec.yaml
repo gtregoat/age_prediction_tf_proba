@@ -2,9 +2,9 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - terraform -chdir=iac init
-      - terraform -chdir=iac validate
+      - terraform init iac
+      - terraform validate iac
 
   build:
     commands:
-      - terraform -chdir=iac apply --auto-approve
+      - terraform apply iac --auto-approve
