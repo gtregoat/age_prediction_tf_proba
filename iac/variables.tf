@@ -14,10 +14,6 @@ variable "github_repo" {
   type = string
 }
 
-variable codestar_connector_credentials {
-    type = string
-}
-
 variable branch_name {
   type = string
 }
