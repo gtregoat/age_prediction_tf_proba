@@ -122,7 +122,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
     }
 
       stage {
-        name ="Build age distribution"
+        name ="Build-age-distribution"
         action{
             name = "Build-age-distribution"
             category = "Build"
