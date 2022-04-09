@@ -12,10 +12,6 @@ resource "aws_codebuild_project" "tf-plan" {
     image                       = var.terraform_docker
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "SERVICE_ROLE"
-#    registry_credential{
-#        credential = var.dockerhub_credentials
-#        credential_provider = "SECRETS_MANAGER"
-#    }
  }
  source {
      type   = "CODEPIPELINE"
@@ -37,14 +33,32 @@ resource "aws_codebuild_project" "tf-apply" {
     image                       = var.terraform_docker
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "SERVICE_ROLE"
-#    registry_credential{
-#        credential = var.dockerhub_credentials
-#        credential_provider = "SECRETS_MANAGER"
-#    }
  }
  source {
      type   = "CODEPIPELINE"
      buildspec = file("../buildspec/apply-buildspec.yaml")
+ }
+}
+
+
+resource "aws_codebuild_project" "tf-build-age-distribution" {
+  name          = "tf-build-age-distribution"
+  description   = "Builds the docker image for age-distribution and pushes it to container registry"
+  service_role  = aws_iam_role.tf-codebuild-role.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = var.terraform_docker
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "SERVICE_ROLE"
+ }
+ source {
+     type   = "CODEPIPELINE"
+     buildspec = file("../buildspec/build-age-distribution-buildspec.yaml")
  }
 }
 
@@ -103,6 +117,21 @@ resource "aws_codepipeline" "cicd_pipeline" {
             input_artifacts = ["tf-code"]
             configuration = {
                 ProjectName = "tf-cicd-apply"
+            }
+        }
+    }
+
+      stage {
+        name ="Build age distribution"
+        action{
+            name = "Build age distribution"
+            category = "Build"
+            provider = "CodeBuild"
+            version = var.code_pipeline_version
+            owner = "AWS"
+            input_artifacts = ["tf-code"]
+            configuration = {
+                ProjectName = "tf-build-age-distribution"
             }
         }
     }
