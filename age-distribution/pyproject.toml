@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "age_model"
+version = "0.1.0"
+description = "Contains models to calculate the age distribution based on a picture. This is made to integrate with AWS Sagemaker"
+authors = ["gtregoat <tregoat.gabriel@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+tensorflow = "^2.8.0"
+tensorflow-probability = "^0.16.0"
+keras-tuner = "^1.1.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
