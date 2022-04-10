@@ -15,5 +15,5 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+      - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text) | tr '\n' ' '
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_container_repo:latest
