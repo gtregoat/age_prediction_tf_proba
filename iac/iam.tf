@@ -89,3 +89,26 @@ resource "aws_iam_role_policy_attachment" "tf-cicd-codebuild-attachment2" {
   policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
   role       = aws_iam_role.tf-codebuild-role.id
 }
+
+
+resource "aws_codeartifact_repository_permissions_policy" "age_prediction_tf_proba_code_artifact_iam" {
+  repository      = aws_codeartifact_repository.age-distribution.repository
+  domain          = aws_codeartifact_domain.age_prediction_tf_proba_domain.domain
+  policy_document = jsonencode(
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "codeartifact:Get*",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Resource": "${aws_codeartifact_domain.age_prediction_tf_proba_domain.arn}"
+            "Condition": {
+              "StringNotEquals": {
+                "aws:SourceVpce": "${aws_vpc_endpoint.age_prediction_tf_proba_codeartifact.id}"
+              }
+            }
+        }
+    ]
+})
+}
