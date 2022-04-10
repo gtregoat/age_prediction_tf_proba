@@ -6,6 +6,9 @@ phases:
       - pip3 install twine
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
       - aws codeartifact login --tool twine --domain tregoat-packages --domain-owner $AWS_ACCOUNT_ID --repository age-distribution
+      - python3 -m pip install --upgrade build
+
   build:
     commands:
-      - twine upload --repository codeartifact age-distribution
+      - python3 -m build age-distribution
+      - twine upload --repository codeartifact age-distribution/dist/*.tar.gz
