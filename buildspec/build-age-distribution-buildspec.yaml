@@ -11,6 +11,7 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - cd age-distribution && docker build -t age_prediction_tf_proba_container_repo:latest .
+      - docker tag age_prediction_tf_proba_container_repo:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_container_repo:latest
   post_build:
     commands:
       - echo Build completed on `date`
