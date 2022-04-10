@@ -63,8 +63,8 @@ resource "aws_codebuild_project" "tf-build-age-distribution" {
 }
 
 
-resource "aws_codebuild_project" "tf-publish-codeartifact" {
-  name          = "tf-publish-codeartifact"
+resource "aws_codebuild_project" "tf-publish-age-distribution-codeartifact" {
+  name          = "tf-publish-age-distribution-codeartifact"
   description   = "Publish the age-distribution package to code artifact"
   service_role  = aws_iam_role.tf-codebuild-role.arn
 
