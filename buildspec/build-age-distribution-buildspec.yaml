@@ -2,8 +2,9 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+      - echo "using AWS account id: $AWS_ACCOUNT_ID"
+      - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
@@ -15,4 +16,4 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
-      - cd age-distribution && docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_container_repo:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_container_repo:latest
