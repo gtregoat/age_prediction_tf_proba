@@ -63,6 +63,27 @@ resource "aws_codebuild_project" "tf-build-age-distribution" {
 }
 
 
+resource "aws_codebuild_project" "tf-publish-codeartifact" {
+  name          = "tf-publish-codeartifact"
+  description   = "Publish the age-distribution package to code artifact"
+  service_role  = aws_iam_role.tf-codebuild-role.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = var.cd_docker
+    type                        = "LINUX_CONTAINER"
+ }
+ source {
+     type   = "CODEPIPELINE"
+     buildspec = file("../buildspec/deploy-codeartifact-buildspec.yaml")
+ }
+}
+
+
 resource "aws_codepipeline" "cicd_pipeline" {
 
     name = "tf-cicd"
@@ -132,6 +153,21 @@ resource "aws_codepipeline" "cicd_pipeline" {
             input_artifacts = ["tf-code"]
             configuration = {
                 ProjectName = "tf-build-age-distribution"
+            }
+        }
+    }
+
+   stage {
+        name ="Publish-code-artifact"
+        action{
+            name = "Publish-code-artifact"
+            category = "Build"
+            provider = "CodeBuild"
+            version = var.code_pipeline_version
+            owner = "AWS"
+            input_artifacts = ["tf-code"]
+            configuration = {
+                ProjectName = "tf-publish-age-distribution-codeartifact"
             }
         }
     }
