@@ -52,7 +52,7 @@ resource "aws_codebuild_project" "tf-build-age-distribution" {
 
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = var.terraform_docker
+    image                       = var.cd_docker
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "SERVICE_ROLE"
     privileged_mode             = true

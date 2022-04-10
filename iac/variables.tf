@@ -2,6 +2,10 @@ variable "terraform_docker" {
   type = string
 }
 
+variable "cd_docker" {
+  type = string
+}
+
 variable "code_pipeline_version" {
   type = string
 }
