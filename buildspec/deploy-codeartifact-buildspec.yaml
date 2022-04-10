@@ -3,6 +3,7 @@ phases:
   pre_build:
     commands:
       - pip3 install awscli --upgrade --user
+      - pip3 install twine
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
       - aws codeartifact login --tool twine --domain tregoat-packages --domain-owner $AWS_ACCOUNT_ID --repository age-distribution
   build:
