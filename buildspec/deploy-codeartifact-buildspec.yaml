@@ -11,4 +11,4 @@ phases:
   build:
     commands:
       - python3 -m build age-distribution
-      - twine upload --repository codeartifact age-distribution/dist/*.tar.gz
+      - twine upload --repository codeartifact age-distribution/dist/*.tar.gz --skip-existing
