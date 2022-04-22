@@ -84,7 +84,7 @@ resource "aws_codebuild_project" "tf-publish-age-distribution-codeartifact" {
 }
 
 
-resource "aws_codebuild_project" "tf-build-deployed-age-distribution" {
+resource "aws_codebuild_project" "tf-build-age-distribution-deployment-component" {
   name          = "tf-build-age-distribution-deployment-component"
   description   = "Builds the docker image for the model deployment."
   service_role  = aws_iam_role.tf-codebuild-role.arn
@@ -204,7 +204,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
             owner = "AWS"
             input_artifacts = ["tf-code"]
             configuration = {
-                ProjectName = "tf-build-deployed-age-distribution"
+                ProjectName = "tf-build-age-distribution-deployment-component"
             }
         }
     }
