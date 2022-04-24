@@ -95,20 +95,50 @@ resource "aws_codeartifact_repository_permissions_policy" "age_prediction_tf_pro
   repository      = aws_codeartifact_repository.age-distribution.repository
   domain          = aws_codeartifact_domain.age_prediction_tf_proba_domain.domain
   policy_document = jsonencode(
-{
-    "Version": "2012-10-17",
-    "Statement": [
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
         {
-            "Action": "codeartifact:Get*",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Resource": "${aws_codeartifact_domain.age_prediction_tf_proba_domain.arn}"
-            "Condition": {
-              "StringNotEquals": {
-                "aws:SourceVpce": "${aws_vpc_endpoint.age_prediction_tf_proba_codeartifact.id}"
-              }
+          "Action" : "codeartifact:Get*",
+          "Effect" : "Allow",
+          "Principal" : "*",
+          "Resource" : "${aws_codeartifact_domain.age_prediction_tf_proba_domain.arn}"
+          "Condition" : {
+            "StringNotEquals" : {
+              "aws:SourceVpce" : "${aws_vpc_endpoint.age_prediction_tf_proba_codeartifact.id}"
             }
+          }
         }
-    ]
-})
+      ]
+    })
+}
+
+# Defining the SageMaker "Assume Role" policy
+data "aws_iam_policy_document" "age_prediction_tf_proba_sagemaker_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type = "Service"
+      identifiers = ["sagemaker.amazonaws.com"]
+    }
+  }
+}
+
+
+
+## RESOURCE BLOCKS
+## ----------------------------------------------------------------
+
+# Defining the SageMaker notebook IAM role
+resource "aws_iam_role" "sagemaker_notebook_iam_role" {
+  name = "sagemaker_notebook_iam_role"
+  assume_role_policy = data.aws_iam_policy_document.age_prediction_tf_proba_sagemaker_assume_role_policy.json
+}
+
+# Attaching the AWS default policy, "AmazonSageMakerFullAccess"
+resource "aws_iam_policy_attachment" "sagemaker_full_access" {
+  name = "sm-full-access-attachment"
+  roles = [aws_iam_role.sagemaker_notebook_iam_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
 }
