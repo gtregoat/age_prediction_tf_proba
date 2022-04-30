@@ -10,6 +10,7 @@ python = ">=3.8,<3.10"
 tensorflow = "^2.8.0"
 tensorflow-probability = "^0.16.0"
 keras-tuner = "^1.1.2"
+Pillow = "^9.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.1"
