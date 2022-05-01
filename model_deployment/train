@@ -75,7 +75,7 @@ def train():
     print('saving model')
     path = os.path.join(model_path, "age_model")
     print(f"saving to {path}")
-    model.save(path)
+    model.save(path,  save_traces=False)
 
 
 if __name__ == '__main__':
