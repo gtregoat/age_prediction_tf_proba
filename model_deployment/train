@@ -75,7 +75,9 @@ def train():
     print('saving model')
     path = os.path.join(model_path, "age_model")
     print(f"saving to {path}")
-    model.save(path,  save_traces=False)
+    model.save_weights(path)
+    # All other methods do not work. Saving weights and using load_weights is the easiest.
+    # I do wonder if this will work for real time inference as protobuff is the preferred format. Lets see.
 
 
 if __name__ == '__main__':
