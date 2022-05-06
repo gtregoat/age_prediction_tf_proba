@@ -6,6 +6,8 @@ FROM $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf
 ENV PATH="/opt/ml/code:${PATH}"
 COPY . /opt/ml/code
 
+RUN pip install .
+
 WORKDIR /opt/ml/code
 
 
