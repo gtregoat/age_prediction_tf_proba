@@ -10,6 +10,7 @@ phases:
       - echo Build started on `date`
       - echo "Giving files the permission to be run (chmod + x)"
       - chmod +x model_deployment/train
+      - chmod +x model_deployment/serve
       - echo Building the Docker image...
       - cd model_deployment && docker build --cache-from $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_deployed_container_repo:latest --build-arg AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID --build-arg AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION -t age_prediction_tf_proba_deployed_container_repo:latest .
       - docker tag age_prediction_tf_proba_deployed_container_repo:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_deployed_container_repo:latest
