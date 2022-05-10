@@ -2,12 +2,14 @@
 # implement the scoring for your own algorithm.
 
 from __future__ import print_function
-
-import io
+from io import BytesIO
+from flask import jsonify
 import os
 from age_model import TfProbabilityCnnClassifier
+import numpy as np
 
 import flask
+from PIL import Image
 
 prefix = "/opt/ml/"
 model_path = os.path.join(prefix, "model")
@@ -58,24 +60,14 @@ def transformation():
     it to a pandas data frame for internal use and then convert the predictions back to CSV (which really
     just means one prediction per line, since there's a single column.
     """
-    data = None
-
     # Read image
-    if flask.request.content_type == "image/jpeg'":
-        data = flask.request.data.decode("utf-8")
-        s = io.StringIO(data)
-        # data = pd.read_csv(s, header=None)  # Read image
+    if flask.request.content_type == "image/jpeg":
+        data = flask.request.data
+        data = np.array(Image.open(BytesIO(data)))
     else:
         return flask.Response(
             response="This predictor only supports jpg data", status=415, mimetype="text/plain"
         )
-
     # Do the prediction
-    predictions = ScoringService.predict(data)
-
-    # Convert from numpy back to CSV
-    out = io.StringIO()
-    # pd.DataFrame({"results": predictions}).to_csv(out, header=False, index=False)
-    result = out.getvalue()
-    print(result)
-    return flask.Response(response=result, status=200, mimetype="text/csv")
+    predictions = ScoringService.predict(data.reshape((1, 128, 128, 3)))
+    return jsonify(predictions.tolist())

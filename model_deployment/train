@@ -65,8 +65,8 @@ def train():
     test_dataset = None
 
     print('fitting model')
-    model.fit(training_dataset, epochs=2,
-              validation_data=test_dataset, steps_per_epoch=1000,
+    model.fit(training_dataset, epochs=1,
+              validation_data=test_dataset, steps_per_epoch=10,
               # validation_steps=args.validation_steps,
               )
 
