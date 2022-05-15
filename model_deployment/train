@@ -25,7 +25,6 @@ param_path = os.path.join(prefix, 'input/config/hyperparameters.json')
 training_path = os.path.join(input_path, "training")
 test_path = os.path.join(input_path, "test")
 
-
 column_idx = [
     [i for i in range(13)],
     [i for i in range(13, 18)],
@@ -55,11 +54,12 @@ def format_labels(y):
 def actual_accuracy(y_true, y_pred):
     y_true = format_labels(y_true)
     y_pred = format_labels(y_pred)
-    eq = tf.cast(math.equal(y_true, y_pred),  tf.int32)
+    eq = tf.cast(math.equal(y_true, y_pred), tf.int32)
     return math.reduce_sum(eq) / eq.shape
 
 
 def train(epochs, regression, batch_size):
+    print("Regression input value", regression)
     if regression:
         print("Using a regressor")
         model = TfProbabilityResnet50Regressor(input_dim=(128, 128, 3))
@@ -129,7 +129,8 @@ if __name__ == '__main__':
         parameters = json.load(tc)
 
     try:
-        train(epochs=parameters["epochs"], regression=parameters["regression"], batch_size=parameters["batch_size"])
+        train(epochs=int(parameters["epochs"]), regression=bool(int(parameters["regression"])),
+              batch_size=int(parameters["batch_size"]))
     except Exception as e:
         # Write out an error file. This will be returned as the failureReason in the
         # DescribeTrainingJob result.
