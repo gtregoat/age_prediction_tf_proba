@@ -9,6 +9,7 @@ from tensorflow.keras.losses import mean_absolute_error
 from tensorflow.compat.v1.metrics import accuracy
 import tensorflow as tf
 import argparse
+import json
 
 # Note we cant use flow from directory with pipe as it requires tfrecords and no other
 # than tf records can be streamed.
@@ -124,15 +125,11 @@ def train(epochs, regression, batch_size):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # Parameters
-    parser.add_argument('--epochs', type=int, default=5)
-    parser.add_argument('--regression', type=bool, default=1)
-    parser.add_argument('--batch_size', type=int, default=64)
-
-    args = parser.parse_args()
+    with open(param_path, 'r') as tc:
+        parameters = json.load(tc)
 
     try:
-        train(epochs=args.epochs, regression=args.regression, batch_size=args.batch_size)
+        train(epochs=parameters["epochs"], regression=parameters["regression"], batch_size=parameters["batch_size"])
     except Exception as e:
         # Write out an error file. This will be returned as the failureReason in the
         # DescribeTrainingJob result.
