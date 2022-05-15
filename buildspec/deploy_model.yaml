@@ -5,6 +5,10 @@ phases:
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain tregoat-packages --domain-owner "${AWS_ACCOUNT_ID}" --query authorizationToken --output text)
+      - export AWS_DEFAULT_REGION="eu-west-1"
+      - export CODEARTIFACT_DOMAIN="tregoat-packages"
+      - export PIP_INDEX_URL="https://aws:${CODEARTIFACT_AUTH_TOKEN}@${CODEARTIFACT_DOMAIN}-${AWS_ACCOUNT_ID}.d.codeartifact.${AWS_DEFAULT_REGION}.amazonaws.com/pypi/age-distribution/simple/"
   build:
     commands:
       - echo Build started on `date`
@@ -12,7 +16,7 @@ phases:
       - chmod +x model_deployment/train
       - chmod +x model_deployment/serve
       - echo Building the Docker image...
-      - cd model_deployment && docker build --cache-from $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_deployed_container_repo:latest --build-arg AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID --build-arg AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION -t age_prediction_tf_proba_deployed_container_repo:latest .
+      - cd model_deployment &&  build --cache-from $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_deployed_container_repo:latest --build-arg AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID --build-arg AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION --build-arg EXTRA_INDEX=$PIP_INDEX_URL -t age_prediction_tf_proba_deployed_container_repo:latest .
       - docker tag age_prediction_tf_proba_deployed_container_repo:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/age_prediction_tf_proba_deployed_container_repo:latest
   post_build:
     commands:

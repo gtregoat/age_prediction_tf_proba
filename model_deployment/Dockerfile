@@ -14,6 +14,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
          nginx \
     && rm -rf /var/lib/apt/lists/*
 
+
 RUN pip install age-model --extra-index-url $EXTRA_INDEX
 WORKDIR /opt/ml/code
 RUN pip install flask
