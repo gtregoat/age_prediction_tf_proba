@@ -14,27 +14,25 @@ def conv_block(inputs, kernel_size, filters: list, strides=(2, 2)):
                                       activation=None,
                                       strides=strides
                                       )(inputs)
-    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.BatchNormalization(axis=3)(x)
     x = tf.keras.layers.Activation("relu")(x)
     x = conv_reparameterization_layer(filters=filters2,
                                       kernel_size=kernel_size,
                                       activation=None,
-                                      strides=strides
                                       )(x)
-    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.BatchNormalization(axis=3)(x)
     x = tf.keras.layers.Activation("relu")(x)
     x = conv_reparameterization_layer(filters=filters3,
                                       kernel_size=(1, 1),
                                       activation=None,
-                                      strides=strides
                                       )(x)
-    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.BatchNormalization(axis=3)(x)
     shortcut = conv_reparameterization_layer(filters=filters3,
                                              kernel_size=(1, 1),
                                              activation=None,
                                              strides=strides
                                              )(inputs)
-    shortcut = tf.keras.layers.BatchNormalization()(shortcut)
+    shortcut = tf.keras.layers.BatchNormalization(axis=3)(shortcut)
     x = tf.keras.layers.add([x, shortcut])
     x = tf.keras.layers.Activation("relu")(x)
     return x
@@ -84,22 +82,27 @@ class TfProbabilityResnet50Classifier(tf.keras.models.Model):
         x = tf.keras.layers.Activation("relu")(x)
         x = tf.keras.layers.ZeroPadding2D((1, 1))(x)
         x = tf.keras.layers.MaxPooling2D((3, 3), strides=(2, 2))(x)
+
         x = conv_block(x, 3, [64, 64, 256], strides=(1, 1))
         x = identity_block(x, 3, [64, 64, 256])
         x = identity_block(x, 3, [64, 64, 256])
+
         x = conv_block(x, 3, [128, 128, 512])
         x = identity_block(x, 3, [128, 128, 512])
         x = identity_block(x, 3, [128, 128, 512])
         x = identity_block(x, 3, [128, 128, 512])
+
         x = conv_block(x, 3, [256, 256, 1024])
         x = identity_block(x, 3, [256, 256, 1024])
         x = identity_block(x, 3, [256, 256, 1024])
         x = identity_block(x, 3, [256, 256, 1024])
         x = identity_block(x, 3, [256, 256, 1024])
         x = identity_block(x, 3, [256, 256, 1024])
+
         x = conv_block(x, 3, [512, 512, 2048])
         x = identity_block(x, 3, [512, 512, 2048])
         x = identity_block(x, 3, [512, 512, 2048])
+
         x = tf.keras.layers.GlobalAveragePooling2D()(x)
         x = dense_reparametrization_layer(n_classes)(x)
         super().__init__(inputs, x, name="bayesian_resnet_50")

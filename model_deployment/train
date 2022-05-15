@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 import os
 import sys
-from age_model import TfProbabilityCnnClassifier
+from age_model import TfProbabilityResnet50Classifier
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import traceback
+from tensorflow import math
+from tensorflow.keras.losses import mean_absolute_error
+from tensorflow.compat.v1.metrics import accuracy
+import tensorflow as tf
+tf.config.experimental_run_functions_eagerly(True)
 
 # Note we cant use flow from directory with pipe as it requires tfrecords and no other
 # than tf records can be streamed.
@@ -16,12 +21,45 @@ param_path = os.path.join(prefix, 'input/config/hyperparameters.json')
 
 # This algorithm has a single channel of input data called 'training'. Since we run in
 # File mode, the input files are copied to the directory specified here.
-channel_name = 'training'
-training_path = os.path.join(input_path, channel_name)
+training_path = os.path.join(input_path, "training")
+test_path = os.path.join(input_path, "test")
+
+
+column_idx = [
+    [i for i in range(13)],
+    [i for i in range(13, 18)],
+    [i for i in range(18, 24)],
+    [i for i in range(25, 34)],
+    [i for i in range(35, 44)],
+    [i for i in range(45, 64)],
+    [i for i in range(64, 101)],
+]
+
+
+def mae_as_reg(y_true, y_pred):
+    y_true = math.argmax(y_true, 1)
+    y_pred = math.argmax(y_pred, 1)
+    return mean_absolute_error(y_true, y_pred)
+
+
+def format_labels(y):
+    # Make segment ids
+    segments = tf.concat([tf.tile([i], [len(lst)]) for i, lst in enumerate(column_idx)], axis=0)
+    # Select columns
+    data_cols = tf.gather(tf.transpose(y), tf.concat(column_idx, axis=0))
+    col_sum = tf.transpose(math.segment_sum(data_cols, segments))
+    return math.argmax(col_sum, 1)
+
+def actual_accuracy(y_true, y_pred):
+    y_true = format_labels(y_true)
+    y_pred = format_labels(y_pred)
+    eq = tf.cast(math.equal(y_true, y_pred),  tf.int32)
+    return math.reduce_sum(eq) / eq.shape
 
 
 def train():
-    model = TfProbabilityCnnClassifier(input_dim=(128, 128, 3), n_classes=100)
+    model = TfProbabilityResnet50Classifier(input_dim=(128, 128, 3), n_classes=100,
+                                            metrics=["accuracy", mae_as_reg, actual_accuracy])
 
     train_datagen = ImageDataGenerator(
         rotation_range=30,
@@ -37,7 +75,7 @@ def train():
     training_dataset = train_datagen.flow_from_directory(
         training_path,
         color_mode="rgb",
-        batch_size=32,
+        batch_size=128,
         target_size=(128, 128),
         shuffle=True,
         seed=42,
@@ -45,28 +83,24 @@ def train():
         follow_links=False,
     )
 
-    # if args.test_file is not None:
-    #     test_datagen = ImageDataGenerator(
-    #         rescale=1. / 255,
-    #     )
+    # test_datagen = ImageDataGenerator(
+    #     rescale=1. / 255,
+    # )
     #
-    #     test_dataset = test_datagen.flow_from_directory(
-    #         training_path,
-    #         color_mode="rgb",
-    #         batch_size=32,
-    #         target_size=(128, 128),
-    #         shuffle=True,
-    #         seed=42,
-    #         interpolation="bilinear",
-    #         follow_links=False,
-    #     )
-    # else:
-    #     test_dataset = None
-    test_dataset = None
+    # test_dataset = test_datagen.flow_from_directory(
+    #     training_path,
+    #     color_mode="rgb",
+    #     batch_size=32,
+    #     target_size=(128, 128),
+    #     shuffle=True,
+    #     seed=42,
+    #     interpolation="bilinear",
+    #     follow_links=False,
+    # )
 
     print('fitting model')
-    model.fit(training_dataset, epochs=1,
-              validation_data=test_dataset, steps_per_epoch=10,
+    model.fit(training_dataset, epochs=10,
+              validation_data=test_dataset,  # steps_per_epoch=10000,
               # validation_steps=args.validation_steps,
               )
 

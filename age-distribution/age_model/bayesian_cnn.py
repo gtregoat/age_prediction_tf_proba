@@ -1,5 +1,5 @@
 """
-
+https://github.com/tensorflow/probability/issues/1350
 """
 import tensorflow as tf
 import tensorflow_probability as tfp
