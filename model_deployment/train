@@ -127,6 +127,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     with open(param_path, 'r') as tc:
         parameters = json.load(tc)
+        print("Provided hyperparameters:")
+        print(parameters)
 
     try:
         train(epochs=int(parameters["epochs"]), regression=bool(int(parameters["regression"])),

@@ -2,6 +2,7 @@
 Reference: Bayesian Layers: A module for Neural Network Uncertainty
 """
 import tensorflow as tf
+import tensorflow_probability as tfp
 from typing import Any
 from .losses import negloglik
 from .bayesian_layers import conv_reparameterization_layer, dense_reparametrization_layer
@@ -112,7 +113,8 @@ class TfProbabilityResnet50Classifier(tf.keras.models.Model):
 
 
 class TfProbabilityResnet50Regressor(tf.keras.models.Model):
-    def __init__(self, input_dim: tuple, optimizer: Any = None, metrics: list = None, loss: Any = None):
+    def __init__(self, input_dim: tuple, optimizer: Any = None, metrics: list = None, loss: Any = None,
+                 scale=1):
         if optimizer is None:
             optimizer = tf.keras.optimizers.Adam()
         if metrics is None:
@@ -150,7 +152,7 @@ class TfProbabilityResnet50Regressor(tf.keras.models.Model):
         x = identity_block(x, 3, [512, 512, 2048])
         x = identity_block(x, 3, [512, 512, 2048])
         x = tf.keras.layers.GlobalAveragePooling2D()(x)
-        x = dense_reparametrization_layer(1)(x)
+        x = tfp.layers.DistributionLambda(lambda t: tfp.distributions.Normal(loc=t, scale=scale))(x)
         super().__init__(inputs, x, name="bayesian_resnet_50")
         self.compile(loss=loss,
                      optimizer=optimizer,
