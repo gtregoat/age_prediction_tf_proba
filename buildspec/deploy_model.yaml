@@ -3,10 +3,10 @@ phases:
   pre_build:
     commands:
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+      - export AWS_DEFAULT_REGION="eu-west-1"
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain tregoat-packages --domain-owner "${AWS_ACCOUNT_ID}" --query authorizationToken --output text)
-      - export AWS_DEFAULT_REGION="eu-west-1"
       - export CODEARTIFACT_DOMAIN="tregoat-packages"
       - export PIP_INDEX_URL="https://aws:${CODEARTIFACT_AUTH_TOKEN}@${CODEARTIFACT_DOMAIN}-${AWS_ACCOUNT_ID}.d.codeartifact.${AWS_DEFAULT_REGION}.amazonaws.com/pypi/age-distribution/simple/"
   build:
