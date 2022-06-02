@@ -152,6 +152,7 @@ class TfProbabilityResnet50Regressor(tf.keras.models.Model):
         x = identity_block(x, 3, [512, 512, 2048])
         x = identity_block(x, 3, [512, 512, 2048])
         x = tf.keras.layers.GlobalAveragePooling2D()(x)
+        x = dense_reparametrization_layer(1)(x)
         x = tfp.layers.DistributionLambda(lambda t: tfp.distributions.Normal(loc=t, scale=scale))(x)
         super().__init__(inputs, x, name="bayesian_resnet_50")
         self.compile(loss=loss,
